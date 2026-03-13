@@ -22,19 +22,37 @@ export default async function Page({
     next: { revalidate: 7200, tags: ["categories"] },
   });
   const filters = await searchParams;
-  const search = filters.search ?? "";
-  const category = filters.category ?? "";
+  const querySearch = filters.search ?? "";
+  const queryCategory = filters.category ?? "";
+  const queryMinPrice = filters.minPrice
+    ? parseFloat(filters.minPrice)
+    : undefined;
+  const queryMaxPrice = filters.maxPrice
+    ? parseFloat(filters.maxPrice)
+    : undefined;
   const page = parseInt(filters.page ?? "1");
   const perPage = 6;
 
-  const filteredData = data.filter((product) => {
-    const matchesCategory = !category || product.category === category;
-    const matchesSearch =
-      !search || product.title.toLowerCase().includes(search.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+  const maxProductPrice = data.reduce(
+    (max, product) => Math.max(max, product.price),
+    0,
+  );
 
-  //Todo: sort
+  const filteredData = data.filter((product) => {
+    if (queryCategory && product.category !== queryCategory) return false;
+
+    if (
+      querySearch &&
+      !product.title.toLowerCase().includes(querySearch.toLowerCase())
+    )
+      return false;
+
+    if (queryMinPrice && product.price < queryMinPrice) return false;
+
+    if (queryMaxPrice && product.price > queryMaxPrice) return false;
+
+    return true;
+  });
 
   const totalPages = Math.ceil(filteredData.length / perPage);
   const validPage = Math.min(Math.max(page, 1), totalPages);
@@ -46,7 +64,7 @@ export default async function Page({
     <div className="container my-12">
       <h1 className="text-2xl font-bold mb-12">Product Catalogue</h1>
       <div className="w-full grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8">
-        <ProductFilter categories={categories} />
+        <ProductFilter categories={categories} maxPrice={maxProductPrice} />
         <div className="grid md:grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-8">
           {paginatedData.map((product) => (
             <ProductCard key={product.id} product={product} />

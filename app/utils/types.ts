@@ -28,4 +28,6 @@ export interface SearchParams {
   search?: string;
   category?: string;
   page?: string;
+  minPrice?: string;
+  maxPrice?: string;
 }

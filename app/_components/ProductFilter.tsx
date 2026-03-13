@@ -2,12 +2,20 @@
 import { useSearchParams, useRouter } from "next/navigation";
 import { useRef } from "react";
 
-const ProductFilter = ({ categories }: { categories: string[] }) => {
+const ProductFilter = ({
+  categories,
+  maxPrice,
+}: {
+  categories: string[];
+  maxPrice: number;
+}) => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const category = searchParams.get("category") ?? "";
   const search = searchParams.get("search") ?? "";
+  const minPrice = Number(searchParams.get("minPrice") ?? 0);
+  const currentMaxPrice = Number(searchParams.get("maxPrice") ?? maxPrice);
 
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -23,19 +31,31 @@ const ProductFilter = ({ categories }: { categories: string[] }) => {
     router.push(`?${params.toString()}`);
   };
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-
+  const debounceUpdate = (key: string, value: string) => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
     debounceRef.current = setTimeout(() => {
-      updateUrl("search", value);
+      updateUrl(key, value);
     }, 400);
   };
 
-  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    updateUrl("category", e.target.value);
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    debounceUpdate("search", e.target.value);
   };
+
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    debounceUpdate("category", e.target.value);
+  };
+
+  const handleMinPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    debounceUpdate("minPrice", e.target.value);
+  };
+
+  const handleMaxPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    debounceUpdate("maxPrice", e.target.value);
+  };
+
+  // Todo: sort
 
   return (
     <div className="filter flex md:flex-col flex-wrap gap-4 sticky top-4 max-h-max">
@@ -76,6 +96,34 @@ const ProductFilter = ({ categories }: { categories: string[] }) => {
             </option>
           ))}
         </select>
+      </div>
+
+      <div className="group flex flex-col gap-1">
+        <label className="text-grey-700">Price Range</label>
+
+        <div className="flex gap-2">
+          <input
+            key={`min-${minPrice}`}
+            type="number"
+            min={0}
+            max={maxPrice}
+            defaultValue={minPrice}
+            onChange={handleMinPriceChange}
+            className="border border-grey rounded px-2 py-1 w-full"
+            placeholder="Min"
+          />
+
+          <input
+            key={`max-${currentMaxPrice}`}
+            type="number"
+            min={0}
+            max={maxPrice}
+            defaultValue={currentMaxPrice}
+            onChange={handleMaxPriceChange}
+            className="border border-grey rounded px-2 py-1 w-full"
+            placeholder="Max"
+          />
+        </div>
       </div>
     </div>
   );

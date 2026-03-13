@@ -4,7 +4,13 @@ import { useCartActions } from "../_stores/cartStore";
 import { Product } from "../utils/types";
 import toast from "react-hot-toast";
 
-const AddToCart = ({ product }: { product: Product }) => {
+const AddToCart = ({
+  product,
+  quantity,
+}: {
+  product: Product;
+  quantity?: number;
+}) => {
   const { addItem } = useCartActions();
 
   const truncateTitle = (title: string, wordLimit = 3) => {
@@ -14,7 +20,7 @@ const AddToCart = ({ product }: { product: Product }) => {
   };
 
   const handleAdd = () => {
-    addItem({ product, quantity: 1 });
+    addItem({ product, quantity: quantity ?? 1 });
     toast.success(`"${truncateTitle(product.title)}" added to cart!`);
   };
 
