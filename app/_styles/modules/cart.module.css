@@ -1,0 +1,7 @@
+.cart {
+  --elementGap: 1.25rem;
+  ul {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-grey) transparent;
+  }
+}
