@@ -4,9 +4,20 @@ import Image from "next/image";
 import Link from "next/link";
 import RatingComponent from "@/app/_components/RatingComponent";
 import QtyAddtoCartBtn from "./components/QtyAddtoCartBtn";
+import type { Metadata } from "next";
 
-//fix vercel deploy error, fakestore rejected server side prerender request
-export const dynamic = "force-dynamic";
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  console.log(params);
+  return {
+    title: ` Product ${id} | FakeStore`,
+    description: `Details about ${id}`,
+  };
+}
 
 export default async function Page({
   params,

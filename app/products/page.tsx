@@ -5,9 +5,6 @@ import ProductFilter from "../_components/ProductFilter";
 import Pagination from "../_components/Pagination";
 import ResetFilters from "../_components/ResetFilters";
 
-//fix vercel deploy error, fakestore rejected server side prerender request
-export const dynamic = "force-dynamic";
-
 export const metadata = {
   title: "Products",
   description: "Product listing page",
