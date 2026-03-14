@@ -1,3 +1,7 @@
+Vercel And Netlify Bots seem to be blacklisted by cloudflare protection or some other anti-bot measure on fakestore api. SSR data fetch requests failed at build time when deploying. Since the task specifically asked for data fetching at SSR, I did not change the data fetching logic to CSR. The build works fine locally.
+
+Please run the project locally.  
+
 ## Running the Project Locally
 
 After cloning,
