@@ -5,6 +5,9 @@ import ProductFilter from "../_components/ProductFilter";
 import Pagination from "../_components/Pagination";
 import ResetFilters from "../_components/ResetFilters";
 
+//fix vercel deploy error, fakestore rejected server side prerender request
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Products",
   description: "Product listing page",
@@ -15,47 +18,57 @@ export default async function Page({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  const data: Product[] = await customFetch("/products", {
-    next: { revalidate: 7200, tags: ["product-list"] },
-  });
   const categories: string[] = await customFetch("/products/categories", {
     next: { revalidate: 7200, tags: ["categories"] },
   });
   const filters = await searchParams;
-  const querySearch = filters.search ?? "";
-  const queryCategory = filters.category ?? "";
-  const queryMinPrice = filters.minPrice
-    ? parseFloat(filters.minPrice)
-    : undefined;
-  const queryMaxPrice = filters.maxPrice
-    ? parseFloat(filters.maxPrice)
-    : undefined;
-  const page = parseInt(filters.page ?? "1");
+  const cleanFilters = {
+    Search: filters.search ?? "",
+    Category: filters.category ?? "",
+    MinPrice: filters.minPrice ? parseFloat(filters.minPrice) : undefined,
+    MaxPrice: filters.maxPrice ? parseFloat(filters.maxPrice) : undefined,
+    Sort: filters.sort ?? "asc",
+
+    page: parseInt(filters.page ?? "1"),
+  };
   const perPage = 6;
+
+  const data: Product[] =
+    cleanFilters.Sort === "asc"
+      ? await customFetch("/products?sort=asc", {
+          next: { revalidate: 7200, tags: ["product-list-asc"] },
+        })
+      : await customFetch("/products?sort=desc", {
+          next: { revalidate: 7200, tags: ["product-list-desc"] },
+        });
 
   const maxProductPrice = data.reduce(
     (max, product) => Math.max(max, product.price),
     0,
   );
 
+  //Since we use Params as the single source of truth, server side filtering made sense
   const filteredData = data.filter((product) => {
-    if (queryCategory && product.category !== queryCategory) return false;
+    if (cleanFilters.Category && product.category !== cleanFilters.Category)
+      return false;
 
     if (
-      querySearch &&
-      !product.title.toLowerCase().includes(querySearch.toLowerCase())
+      cleanFilters.Search &&
+      !product.title.toLowerCase().includes(cleanFilters.Search.toLowerCase())
     )
       return false;
 
-    if (queryMinPrice && product.price < queryMinPrice) return false;
+    if (cleanFilters.MinPrice && product.price < cleanFilters.MinPrice)
+      return false;
 
-    if (queryMaxPrice && product.price > queryMaxPrice) return false;
+    if (cleanFilters.MaxPrice && product.price > cleanFilters.MaxPrice)
+      return false;
 
     return true;
   });
 
   const totalPages = Math.ceil(filteredData.length / perPage);
-  const validPage = Math.min(Math.max(page, 1), totalPages);
+  const validPage = Math.min(Math.max(cleanFilters.page, 1), totalPages);
   const paginatedData = filteredData.slice(
     (validPage - 1) * perPage,
     validPage * perPage,
@@ -72,7 +85,7 @@ export default async function Page({
           {paginatedData.length === 0 && (
             <div className="grid gap-4 col-span-full content-center text-center">
               <span>No data Available</span>
-              <ResetFilters />
+              <ResetFilters className="mx-auto" />
             </div>
           )}
           <Pagination activePage={validPage} totalPages={totalPages} />

@@ -1,6 +1,7 @@
 "use client";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useRef } from "react";
+import ResetFilters from "./ResetFilters";
 
 const ProductFilter = ({
   categories,
@@ -14,6 +15,8 @@ const ProductFilter = ({
 
   const category = searchParams.get("category") ?? "";
   const search = searchParams.get("search") ?? "";
+  const sort = searchParams.get("sort") ?? "";
+  const cleanSort = sort == "asc" || sort == "desc" ? sort : "asc";
   const minPrice = Number(searchParams.get("minPrice") ?? 0);
   const currentMaxPrice = Number(searchParams.get("maxPrice") ?? maxPrice);
 
@@ -55,11 +58,13 @@ const ProductFilter = ({
     debounceUpdate("maxPrice", e.target.value);
   };
 
-  // Todo: sort
+  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    debounceUpdate("sort", e.target.value);
+  };
 
   return (
-    <div className="filter flex md:flex-col flex-wrap gap-4 sticky top-4 max-h-max">
-      <span className="text-xl w-full">Filters</span>
+    <div className="filter flex md:flex-col flex-wrap gap-4 md:sticky md:top-4 max-h-max">
+      <span className="w-full text-xl">Filters</span>
 
       {/* Key to rerender input tag. Using uncontrolled input to use url as the single source of truth */}
       <div className="group flex flex-col gap-1">
@@ -99,6 +104,25 @@ const ProductFilter = ({
       </div>
 
       <div className="group flex flex-col gap-1">
+        <label htmlFor="sort" className="text-grey-700">
+          Sort By
+        </label>
+        <select
+          id="sort"
+          className="sort-select border border-grey rounded px-2 py-1"
+          value={cleanSort}
+          onChange={handleSortChange}
+        >
+          <option value="asc" className="">
+            Ascending
+          </option>
+          <option value="desc" className="">
+            Descending
+          </option>
+        </select>
+      </div>
+
+      <div className="group flex flex-col gap-1">
         <label className="text-grey-700">Price Range</label>
 
         <div className="flex gap-2">
@@ -124,6 +148,9 @@ const ProductFilter = ({
             placeholder="Max"
           />
         </div>
+      </div>
+      <div className="w-full">
+        <ResetFilters className="ml-0 mr-auto"></ResetFilters>
       </div>
     </div>
   );

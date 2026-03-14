@@ -33,7 +33,7 @@ export default function RootLayout({
         <Header />
         <main className="flex flex-col grow w-full">{children}</main>
         <Cart />
-        <Toaster position="top-right" />
+        <Toaster position="bottom-right" />
       </body>
     </html>
   );

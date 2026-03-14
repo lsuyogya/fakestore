@@ -2,11 +2,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const ResetFilters = () => {
+const ResetFilters = ({ className }: { className?: string }) => {
   const pathname = usePathname();
   const resetUrl = `${pathname}`;
   return (
-    <Link className="btn-dark w-max mx-auto" href={resetUrl}>
+    <Link
+      className={` btn-dark w-max content-center ${className}`}
+      href={resetUrl}
+    >
       Reset Filters
     </Link>
   );

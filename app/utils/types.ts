@@ -30,4 +30,5 @@ export interface SearchParams {
   page?: string;
   minPrice?: string;
   maxPrice?: string;
+  sort?: "asc" | "desc";
 }

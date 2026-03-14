@@ -3,6 +3,7 @@ import type { CartItem } from "../utils/types";
 import Image from "next/image";
 import { useCartActions } from "../_stores/cartStore";
 import { Trash } from "react-feather";
+import QuantityButton from "@/app/_components/QuantityButton";
 
 const ProductLineList = ({ items }: { items: CartItem[] }) => {
   const { incrementQuantity, removeItem } = useCartActions();
@@ -24,25 +25,17 @@ const ProductLineList = ({ items }: { items: CartItem[] }) => {
           </div>
           <div className="flex-1">
             <h2 className="text-lg line-clamp-2">{cartItem.product.title}</h2>
-            <div className="flex items-centers mt-4">
-              <button
-                className="px-2 border-grey border rounded-l"
-                onClick={() => incrementQuantity(-1, cartItem.product)}
-                aria-label="Decrease quantity"
-              >
-                -
-              </button>
-              <span className="border-t border-b border-grey px-2">
-                {cartItem.quantity}
-              </span>
-              <button
-                className="px-2 border-grey border rounded-r"
-                onClick={() => incrementQuantity(1, cartItem.product)}
-                aria-label="Increase quantity"
-              >
-                +
-              </button>
 
+            <div className="flex items-centers mt-4">
+              <QuantityButton
+                currentQuantity={cartItem.quantity}
+                qtuReduceCallBack={() =>
+                  incrementQuantity(-1, cartItem.product)
+                }
+                qtyIncreaseCallback={() =>
+                  incrementQuantity(1, cartItem.product)
+                }
+              />
               <button
                 className="text-grey-700 text-sm ml-2"
                 onClick={() => removeItem(cartItem.product.id)}

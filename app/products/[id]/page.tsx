@@ -3,7 +3,10 @@ import { Product } from "@/app/utils/types";
 import Image from "next/image";
 import Link from "next/link";
 import RatingComponent from "@/app/_components/RatingComponent";
-import AddtoCart from "@/app/_components/AddtoCart";
+import QtyAddtoCartBtn from "./components/QtyAddtoCartBtn";
+
+//fix vercel deploy error, fakestore rejected server side prerender request
+export const dynamic = "force-dynamic";
 
 export default async function Page({
   params,
@@ -47,10 +50,7 @@ export default async function Page({
           <p className="first-letter:capitalize text-grey-700">
             {product.description}
           </p>
-          <div className="flex justify-between w-full">
-            {/* TODO: qty btn */}
-            <AddtoCart product={product} />
-          </div>
+          <QtyAddtoCartBtn product={product} />
         </div>
       </div>
     </div>
